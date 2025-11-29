@@ -1,0 +1,59 @@
+# Build outputs
+[Bb]in/
+[Oo]bj/
+Assemblies/
+*.dll
+*.pdb
+*.exe
+
+# NuGet packages and cache
+packages/
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/project.assets.json
+**/project.nuget.cache
+**/*.nuget.dgspec.json
+**/*.nuget.g.props
+**/*.nuget.g.targets
+
+# RimWorld reference DLLs (large, should be restored via NuGet)
+Source/**/RimWorldRefs/
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.code-workspace
+
+# Temporary files
+*.tmp
+*.temp
+temp.*
+*.log
+*.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# MSBuild
+*.csproj.user
+*.csproj.vspscc
+
+# Backup files
+*~
+*.bak
+*.swp
+

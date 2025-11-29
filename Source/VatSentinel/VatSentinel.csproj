@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8EB81423-C763-4A7A-9031-2451C834A7C0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>VatSentinel</RootNamespace>
+    <AssemblyName>VatSentinel</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Assemblies\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Assemblies\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RimWorldReferenceDir>$(IntermediateOutputPath)RimWorldRefs\</RimWorldReferenceDir>
+    <ResolveAssemblyReferencesSilentUnification>true</ResolveAssemblyReferencesSilentUnification>
+    <NoWarn>$(NoWarn);MSB3277</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*" GeneratePathProperty="true" PrivateAssets="all" IncludeAssets="none" />
+    <PackageReference Include="Lib.Harmony" Version="2.3.6" ExcludeAssets="runtime" />
+    <PackageReference Include="System.Runtime" Version="4.1.2" ExcludeAssets="runtime" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ModStartup.cs" />
+    <Compile Include="CompVatGrowerReflection.cs" />
+    <Compile Include="Patches\CompVatGrowerPatches.cs" />
+    <Compile Include="Scheduling\VatEjectionRule.cs" />
+    <Compile Include="Scheduling\VatEjectionSchedule.cs" />
+    <Compile Include="VatSentinelLogger.cs" />
+    <Compile Include="VatSentinelCleanupUtility.cs" />
+    <Compile Include="VatSentinelScheduler.cs" />
+    <Compile Include="VatSentinelWorldComponent.cs" />
+    <Compile Include="VatTrackingRecord.cs" />
+    <Compile Include="VatSentinelNotificationUtility.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(RimWorldReferenceDir)Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(RimWorldReferenceDir)Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(RimWorldReferenceDir)UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(RimWorldReferenceDir)UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <Target Name="PrepareRimWorldReferenceCopies" BeforeTargets="ResolveReferences">
+    <ItemGroup>
+      <RimWorldReferenceSource Include="$(PkgKrafs_Rimworld_Ref)\ref\net472\Assembly-CSharp.dll" />
+      <RimWorldReferenceSource Include="$(PkgKrafs_Rimworld_Ref)\ref\net472\Assembly-CSharp-firstpass.dll" />
+      <RimWorldReferenceSource Include="$(PkgKrafs_Rimworld_Ref)\ref\net472\UnityEngine.dll" />
+      <RimWorldReferenceSource Include="$(PkgKrafs_Rimworld_Ref)\ref\net472\UnityEngine.CoreModule.dll" />
+    </ItemGroup>
+    <MakeDir Directories="$(RimWorldReferenceDir)" />
+    <Copy SourceFiles="@(RimWorldReferenceSource)" DestinationFolder="$(RimWorldReferenceDir)" SkipUnchangedFiles="true" />
+  </Target>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
+
