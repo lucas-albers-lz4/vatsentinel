@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HarmonyLib;
 using RimWorld;
 using Verse;
 
@@ -16,6 +17,29 @@ namespace VatSentinel
         {
             VatSentinelLogger.Debug("VatSentinelWorldComponent constructor called");
             _instance = this;
+            VerifyBiotechAvailable();
+        }
+
+        public override void GameComponentTick()
+        {
+            // Check once after a short delay to see if Biotech becomes available
+            if (Find.TickManager?.TicksGame == 100)
+            {
+                VerifyBiotechAvailable();
+            }
+        }
+
+        private static void VerifyBiotechAvailable()
+        {
+            var compVatGrowerType = AccessTools.TypeByName("RimWorld.CompVatGrower");
+            if (compVatGrowerType == null)
+            {
+                VatSentinelLogger.Warn("CompVatGrower type not found! Vat Sentinel requires Biotech DLC to function. Please ensure Biotech DLC is enabled.");
+            }
+            else
+            {
+                VatSentinelLogger.Debug($"CompVatGrower type verified: {compVatGrowerType.FullName}");
+            }
         }
 
         internal static VatSentinelWorldComponent Instance

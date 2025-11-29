@@ -115,7 +115,7 @@ namespace VatSentinel
             var compVatGrowerType = AccessTools.TypeByName("RimWorld.CompVatGrower");
             if (compVatGrowerType == null)
             {
-                VatSentinelLogger.Warn("CompVatGrower type not found! Patches may not be active. Is Biotech DLC enabled?");
+                VatSentinelLogger.Debug("CompVatGrower type not found. This is normal if Biotech DLC is not enabled. Vat Sentinel will be inactive until Biotech is available.");
             }
             else
             {
@@ -129,6 +129,11 @@ namespace VatSentinel
                 
                 VatSentinelLogger.Debug($"Notify_StartGrowing patches: {notifyPatched?.Postfixes?.Count ?? 0}");
                 VatSentinelLogger.Debug($"CompTick patches: {tickPatched?.Postfixes?.Count ?? 0}");
+                
+                if ((notifyPatched?.Postfixes?.Count ?? 0) == 0 || (tickPatched?.Postfixes?.Count ?? 0) == 0)
+                {
+                    VatSentinelLogger.Warn("Harmony patches were not applied successfully. Vat Sentinel may not function correctly.");
+                }
             }
             
             _initialized = true;
