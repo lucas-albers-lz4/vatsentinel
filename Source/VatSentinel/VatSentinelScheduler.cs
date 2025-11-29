@@ -50,8 +50,7 @@ namespace VatSentinel
 
             VatSentinelLogger.Debug($"Tick: Evaluating vat {vat.LabelCap} at tick {ticksGame}");
 
-            var vatComp = CompVatGrowerReflection.GetVatComp(vat);
-            var occupant = CompVatGrowerReflection.GetPawnBeingGrown(vatComp);
+            var occupant = CompVatGrowerReflection.GetPawnBeingGrown(vat);
             if (occupant == null)
             {
                 VatSentinelLogger.Debug($"Tick: No occupant in vat {vat.LabelCap}");
@@ -139,8 +138,7 @@ namespace VatSentinel
                 return;
             }
 
-            var remainingComp = CompVatGrowerReflection.GetVatComp(vat);
-            var remainingPawn = CompVatGrowerReflection.GetPawnBeingGrown(remainingComp);
+            var remainingPawn = CompVatGrowerReflection.GetPawnBeingGrown(vat);
             if (remainingPawn == pawn)
             {
                 VatSentinelLogger.Warn($"TryEject: Pawn {pawn.LabelShort} still in vat after eject call, scheduling retry");
@@ -174,25 +172,6 @@ namespace VatSentinel
                 catch (Exception ex)
                 {
                     VatSentinelLogger.Warn($"TryEjectPawn invocation failed: {ex.Message}");
-                }
-            }
-
-            var comp = CompVatGrowerReflection.GetVatComp(vat);
-            var compMethod = CompVatGrowerReflection.TryEjectPawnMethod;
-            if (compMethod != null && comp != null)
-            {
-                var compArgs = PrepareArgs(compMethod, pawn);
-                if (compArgs != null)
-                {
-                    try
-                    {
-                        var result = compMethod.Invoke(comp, compArgs);
-                        return result is bool boolResult ? boolResult : true;
-                    }
-                    catch (Exception ex)
-                    {
-                        VatSentinelLogger.Warn($"CompVatGrower.TryEjectPawn failed: {ex.Message}");
-                    }
                 }
             }
 

@@ -15,14 +15,13 @@
     <li>Ludeon.RimWorld</li>
     <li>Ludeon.RimWorld.Royalty</li>
     <li>Ludeon.RimWorld.Ideology</li>
-    <li>Ludeon.RimWorld.Biotech</li>
+    <li>ludeon.rimworld.biotech</li>
     <li>Ludeon.RimWorld.Anomaly</li>
   </loadAfter>
   <modDependencies>
     <li>
-      <packageId>Ludeon.RimWorld.Biotech</packageId>
+      <packageId>ludeon.rimworld.biotech</packageId>
       <displayName>Biotech</displayName>
-      <steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2895299315</steamWorkshopUrl>
     </li>
   </modDependencies>
 </ModMetaData>

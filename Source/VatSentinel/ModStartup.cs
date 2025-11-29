@@ -112,14 +112,13 @@ namespace VatSentinel
             harmony.PatchAll();
             VatSentinelLogger.Debug("Harmony PatchAll completed. Checking if CompVatGrower type is available...");
             
+            // Note: Type check during initialization may fail even if Biotech is enabled,
+            // as types may not be loaded yet. The patches use Prepare() methods that check
+            // at runtime, and VatSentinelWorldComponent will verify at game start.
             var compVatGrowerType = AccessTools.TypeByName("RimWorld.CompVatGrower");
-            if (compVatGrowerType == null)
+            if (compVatGrowerType != null)
             {
-                VatSentinelLogger.Debug("CompVatGrower type not found. This is normal if Biotech DLC is not enabled. Vat Sentinel will be inactive until Biotech is available.");
-            }
-            else
-            {
-                VatSentinelLogger.Debug($"CompVatGrower type found: {compVatGrowerType.FullName}");
+                VatSentinelLogger.Debug($"CompVatGrower type found during initialization: {compVatGrowerType.FullName}");
                 
                 // Verify patches were applied
                 var notifyMethod = AccessTools.Method(compVatGrowerType, "Notify_StartGrowing");
@@ -134,6 +133,10 @@ namespace VatSentinel
                 {
                     VatSentinelLogger.Warn("Harmony patches were not applied successfully. Vat Sentinel may not function correctly.");
                 }
+            }
+            else
+            {
+                VatSentinelLogger.Debug("CompVatGrower type not found during initialization (this is normal - types may load later). Will verify when game starts.");
             }
             
             _initialized = true;
