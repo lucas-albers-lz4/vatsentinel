@@ -36,6 +36,13 @@ namespace VatSentinel
             }
 
             var ticksGame = tickManager.TicksGame;
+            
+            // Log every 3000 ticks to confirm we're being called
+            if (ticksGame % 3000 == 0)
+            {
+                VatSentinelLogger.Debug($"Tick: VatSentinelScheduler.Tick called for vat {vat.LabelCap} at tick {ticksGame}");
+            }
+            
             if (ticksGame % EvaluationIntervalTicks != 0)
             {
                 return;

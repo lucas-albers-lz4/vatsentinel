@@ -120,6 +120,15 @@ namespace VatSentinel
             else
             {
                 VatSentinelLogger.Debug($"CompVatGrower type found: {compVatGrowerType.FullName}");
+                
+                // Verify patches were applied
+                var notifyMethod = AccessTools.Method(compVatGrowerType, "Notify_StartGrowing");
+                var compTickMethod = AccessTools.Method(compVatGrowerType, "CompTick");
+                var notifyPatched = Harmony.GetPatchInfo(notifyMethod);
+                var tickPatched = Harmony.GetPatchInfo(compTickMethod);
+                
+                VatSentinelLogger.Debug($"Notify_StartGrowing patches: {notifyPatched?.Postfixes?.Count ?? 0}");
+                VatSentinelLogger.Debug($"CompTick patches: {tickPatched?.Postfixes?.Count ?? 0}");
             }
             
             _initialized = true;

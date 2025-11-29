@@ -1,19 +1,18 @@
 using System;
 using System.Collections.Generic;
 using RimWorld;
-using RimWorld.Planet;
 using Verse;
 
 namespace VatSentinel
 {
-    public sealed class VatSentinelWorldComponent : WorldComponent
+    public sealed class VatSentinelWorldComponent : GameComponent
     {
         private static VatSentinelWorldComponent _instance;
 
         private List<VatTrackingRecord> _trackedPawns = new List<VatTrackingRecord>();
         private Scheduling.VatEjectionSchedule _schedule = new Scheduling.VatEjectionSchedule();
 
-        public VatSentinelWorldComponent(World world) : base(world)
+        public VatSentinelWorldComponent(Game game) : base()
         {
             VatSentinelLogger.Debug("VatSentinelWorldComponent constructor called");
             _instance = this;
@@ -25,20 +24,20 @@ namespace VatSentinel
             {
                 if (_instance == null)
                 {
-                    if (Find.World == null)
+                    if (Current.Game == null)
                     {
-                        VatSentinelLogger.Debug("VatSentinelWorldComponent.Instance: Find.World is null");
+                        VatSentinelLogger.Debug("VatSentinelWorldComponent.Instance: Current.Game is null");
                         return null;
                     }
                     
-                    _instance = Find.World.GetComponent<VatSentinelWorldComponent>();
+                    _instance = Current.Game.GetComponent<VatSentinelWorldComponent>();
                     if (_instance == null)
                     {
-                        VatSentinelLogger.Warn("VatSentinelWorldComponent.Instance: Component not found on World! This may indicate a registration issue.");
+                        VatSentinelLogger.Warn("VatSentinelWorldComponent.Instance: Component not found on Game! This may indicate a registration issue.");
                     }
                     else
                     {
-                        VatSentinelLogger.Debug("VatSentinelWorldComponent.Instance: Retrieved from World");
+                        VatSentinelLogger.Debug("VatSentinelWorldComponent.Instance: Retrieved from Game");
                     }
                 }
 

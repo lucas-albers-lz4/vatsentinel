@@ -100,12 +100,24 @@ namespace VatSentinel.Patches
 
             static void Postfix(ThingComp __instance)
             {
+                // Only log occasionally to avoid spam
+                var tickManager = Find.TickManager;
+                var shouldLog = tickManager != null && tickManager.TicksGame % 3000 == 0; // Every 3000 ticks (~50 seconds)
+                
+                if (shouldLog)
+                {
+                    VatSentinelLogger.Debug($"CompTick.Postfix: Called at tick {tickManager.TicksGame}, parent type: {__instance?.parent?.GetType()?.Name ?? "null"}");
+                }
+                
                 if (__instance?.parent is Building_GrowthVat vat)
                 {
                     var manager = VatSentinelWorldComponent.Instance;
                     if (manager == null)
                     {
-                        VatSentinelLogger.Debug("CompTick.Postfix: WorldComponent instance is null");
+                        if (shouldLog)
+                        {
+                            VatSentinelLogger.Debug("CompTick.Postfix: WorldComponent instance is null");
+                        }
                         return;
                     }
                     
@@ -113,7 +125,7 @@ namespace VatSentinel.Patches
                     VatSentinelCleanupUtility.Tick(vat);
                     VatSentinelScheduler.Tick(vat);
                 }
-                else
+                else if (shouldLog)
                 {
                     VatSentinelLogger.Debug($"CompTick.Postfix: __instance.parent is not Building_GrowthVat (type: {__instance?.parent?.GetType()?.Name ?? "null"})");
                 }
