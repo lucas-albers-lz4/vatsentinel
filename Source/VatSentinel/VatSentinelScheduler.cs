@@ -32,6 +32,28 @@ namespace VatSentinel
                 return;
             }
 
+            // Skip vats that are not operational (not spawned, destroyed, or turned off)
+            if (!vat.Spawned || vat.Destroyed)
+            {
+                return;
+            }
+
+            // Check if vat is turned off (flickable component)
+            var flickable = vat.GetComp<CompFlickable>();
+            if (flickable != null && !flickable.SwitchIsOn)
+            {
+                // Vat is turned off, skip evaluation
+                return;
+            }
+
+            // Check if vat has power (if it requires power)
+            var powerTrader = vat.GetComp<CompPowerTrader>();
+            if (powerTrader != null && !powerTrader.PowerOn)
+            {
+                // Vat is not powered, skip evaluation
+                return;
+            }
+
             var tickManager = Find.TickManager;
             if (tickManager == null)
             {
@@ -54,6 +76,7 @@ namespace VatSentinel
             var occupant = CompVatGrowerReflection.GetPawnBeingGrown(vat);
             if (occupant == null)
             {
+                // Only log if vat is operational (we already checked above)
                 VatSentinelLogger.Debug($"Tick: No occupant in vat {vat.LabelCap}");
                 return;
             }
