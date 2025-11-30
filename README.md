@@ -4,11 +4,11 @@ A RimWorld mod that provides automated management of growth vats by enforcing co
 
 ## Overview
 
-Vat Sentinel extends RimWorld's Biotech DLC growth vat functionality with intelligent automation. The mod tracks pawns throughout their development cycle and automatically ejects them when they reach configurable age thresholds (childhood at 3 years, adolescence at 13 years, or adulthood at 18 years). This eliminates the need for manual monitoring and prevents pawns from remaining in vats longer than necessary.
+Vat Sentinel extends RimWorld's Biotech DLC growth vat functionality with intelligent automation. The mod tracks pawns throughout their development cycle and automatically ejects them when they reach configurable age thresholds (childhood at 3 years, growth moment at 7 years, or adolescence at 13 years). This eliminates the need for manual monitoring and prevents pawns from remaining in vats longer than necessary. Note: RimWorld automatically ejects pawns at adulthood (age 18), so that threshold is not configurable.
 
 ### Key Features
 
-- **Automated Age-Based Ejection**: Configurable ejection at biological age milestones (3, 13, or 18 years)
+- **Automated Age-Based Ejection**: Configurable ejection at biological age milestones (3, 7, or 13 years) corresponding to RimWorld growth stages
 - **Persistent State Management**: Ejection schedules persist across game saves and are recalculated on load
 - **Robust Error Handling**: Retry logic for failed ejections with user notifications
 - **Harmony-Based Integration**: Non-invasive patches that maintain compatibility with other mods
@@ -41,18 +41,20 @@ Access mod settings through: **Options → Mod Settings → Vat Sentinel**
 
 Available settings:
 - **Eject when reaching childhood (age 3)**: Automatically eject pawns at 3 years of age
+- **Eject at growth moment (age 7)**: Automatically eject pawns at 7 years of age (growth moment)
 - **Eject when reaching adolescence (age 13)**: Automatically eject pawns at 13 years of age
-- **Eject when reaching adulthood (age 18)**: Automatically eject pawns at 18 years of age
+- **Eject after 1 day in vat (development/testing only)**: Time-based ejection for testing (defaults to off)
 
-Multiple thresholds can be enabled simultaneously; the mod will eject at the earliest enabled threshold.
+Multiple thresholds can be enabled simultaneously; the mod will eject at the earliest enabled threshold. Settings changes take effect immediately and will recalculate ejection schedules for all tracked pawns.
 
 ### How It Works
 
-1. When a pawn is placed in a growth vat, Vat Sentinel registers the pawn and records the entry time
-2. The mod continuously monitors the pawn's biological age during each game tick
+1. When a pawn is placed in a growth vat, Vat Sentinel registers the pawn and records the entry time and entry age
+2. The mod evaluates ejection schedules hourly (every 2,500 ticks) to check if thresholds are met
 3. When a configured age threshold is reached, the mod attempts to eject the pawn
 4. Success or failure notifications are displayed to the player
 5. If ejection fails (e.g., vat is blocked), the mod schedules a retry
+6. Settings changes take effect immediately and recalculate schedules for all tracked pawns
 
 ## Architecture
 

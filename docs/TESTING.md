@@ -79,14 +79,14 @@ This document outlines the comprehensive testing procedures for Vat Sentinel, en
    - **Expected Result**: No ejection at age 3
    - Continue to age 13
    - **Expected Result**: Ejection occurs at age 13
-   - **Test Case 2**: Enable all thresholds (3, 13, 18)
+   - **Test Case 2**: Enable all thresholds (3, 7, 13)
    - **Expected Result**: Ejection occurs at the earliest enabled threshold (age 3)
 
 4. **Multiple Threshold Testing:**
-   - Configure mod to eject at multiple ages (e.g., 3 and 18)
+   - Configure mod to eject at multiple ages (e.g., 3 and 13)
    - Insert pawn and verify ejection occurs at age 3 (earliest threshold)
-   - Reconfigure to only eject at age 18
-   - Insert new pawn and verify no ejection at age 3, but ejection at age 18
+   - Reconfigure to only eject at age 13
+   - Insert new pawn and verify no ejection at age 3, but ejection at age 13
 
 ### 5. Error Handling and Edge Cases
 

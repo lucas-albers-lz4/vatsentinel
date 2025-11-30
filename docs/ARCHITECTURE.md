@@ -49,9 +49,10 @@ Vat Sentinel is built on RimWorld's modding framework using Harmony for runtime 
 **Purpose**: Business logic for calculating ejection targets based on configured age thresholds.
 
 **Responsibilities**:
-- Evaluates enabled age thresholds (Child: 3, Teen: 13, Adult: 18)
-- Calculates the next target age for a given pawn
-- Determines time-based ejection eligibility (2-day threshold)
+- Evaluates enabled age thresholds (Child: 3, Age7: 7, Teen: 13)
+- Calculates the next target age for a given pawn based on entry age
+- Determines time-based ejection eligibility (1-day threshold, development/testing only)
+- Note: Age 18 (adulthood) is handled automatically by RimWorld and is not configurable
 - Returns the earliest applicable threshold
 
 **Key Methods**:
