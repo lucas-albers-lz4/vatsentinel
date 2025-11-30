@@ -40,9 +40,10 @@ Create a RimWorld mod that enforces configurable time limits for pawns inside va
 
 ### Compatibility Considerations
 
-- Target RimWorld 1.5 and Biotech DLC vat mechanics.
+- Target RimWorld 1.6 (backward compatible with 1.4 and 1.5) and Biotech DLC vat mechanics.
 - Reference implementations: `EnhancedVatLearning`, `RimWorld-GrowthAccelerator`.
 - Use Harmony patches conservatively to avoid conflicts.
+- Reflection-based API access ensures compatibility across RimWorld versions.
 
 ### Logging and Diagnostics
 
@@ -69,5 +70,6 @@ Create a RimWorld mod that enforces configurable time limits for pawns inside va
 - Custom age thresholds per pawn or per vat.
 - Integration with colony management mods for alerts.
 - Extended UI for scheduling and override controls.
-*** End Patch
+- Time-based ejection with configurable day thresholds.
+- Integration with nutrition and power management systems.
 

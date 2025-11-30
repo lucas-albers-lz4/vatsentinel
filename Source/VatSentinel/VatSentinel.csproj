@@ -34,6 +34,9 @@
     <RimWorldReferenceDir>$(IntermediateOutputPath)RimWorldRefs\</RimWorldReferenceDir>
     <ResolveAssemblyReferencesSilentUnification>true</ResolveAssemblyReferencesSilentUnification>
     <NoWarn>$(NoWarn);MSB3277</NoWarn>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\VatSentinel.ruleset</CodeAnalysisRuleSet>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -43,6 +46,17 @@
     <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*" GeneratePathProperty="true" PrivateAssets="all" IncludeAssets="none" />
     <PackageReference Include="Lib.Harmony" Version="2.3.6" ExcludeAssets="runtime" />
     <PackageReference Include="System.Runtime" Version="4.1.2" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ModStartup.cs" />

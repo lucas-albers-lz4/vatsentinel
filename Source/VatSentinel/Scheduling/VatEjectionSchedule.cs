@@ -27,19 +27,19 @@ namespace VatSentinel.Scheduling
             Evaluate(_teenRule, settings.EjectAtTeen);
             Evaluate(_adultRule, settings.EjectAtAdult);
 
-            // Check time-based target (2 days)
+            // Check time-based target (1 day)
             if (settings.EjectAfterDays && entryTick >= 0 && Find.TickManager != null)
             {
                 var currentTick = Find.TickManager.TicksGame;
                 var ticksElapsed = currentTick - entryTick;
                 var daysElapsed = ticksElapsed / (float)TicksPerDay;
-                var targetDays = 2.0f;
+                var targetDays = 1.0f;
                 
                 VatSentinelLogger.Debug($"Time-based check: currentTick={currentTick}, entryTick={entryTick}, ticksElapsed={ticksElapsed}, daysElapsed={daysElapsed:F4}, targetDays={targetDays}");
                 
                 if (daysElapsed < targetDays)
                 {
-                    // Calculate what age the pawn will be in 2 days
+                    // Calculate what age the pawn will be in 1 day
                     // RimWorld vats accelerate growth, but for simplicity, we'll use a time-based check
                     // This will be handled separately in the scheduler
                     VatSentinelLogger.Debug($"Time-based target not yet reached: {daysElapsed:F4} < {targetDays} days");
@@ -66,8 +66,15 @@ namespace VatSentinel.Scheduling
                 
                 if (currentAge >= targetAge - StageEpsilon)
                 {
-                    // Already beyond this stage; ignore
-                    VatSentinelLogger.Debug($"Rule {rule.LabelKey}: Already past target age, ignoring");
+                    // Already past this stage - set target to current age (or slightly below) to trigger immediate ejection
+                    // Set to currentAge - small value so that currentAge + tolerance >= target will be true
+                    // This ensures ejection triggers immediately even if age increases slightly between ticks
+                    var immediateTarget = currentAge - 0.00005f; // Slightly below current age
+                    if (immediateTarget < bestAge)
+                    {
+                        bestAge = immediateTarget;
+                        VatSentinelLogger.Debug($"Rule {rule.LabelKey}: Already past target age ({currentAge:F6} >= {targetAge:F4}), setting immediate ejection target = {bestAge:F6} (currentAge - 0.00005)");
+                    }
                     return;
                 }
 
@@ -89,7 +96,7 @@ namespace VatSentinel.Scheduling
             var currentTick = Find.TickManager.TicksGame;
             var ticksElapsed = currentTick - record.EntryTick;
             var daysElapsed = ticksElapsed / (float)TicksPerDay;
-            var targetDays = 2.0f;
+            var targetDays = 1.0f;
 
             VatSentinelLogger.Debug($"ShouldEjectByTime: pawn={record.Pawn?.LabelShort ?? "null"}, currentTick={currentTick}, entryTick={record.EntryTick}, ticksElapsed={ticksElapsed}, daysElapsed={daysElapsed:F4}, targetDays={targetDays}");
 

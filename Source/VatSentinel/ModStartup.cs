@@ -54,7 +54,7 @@ namespace VatSentinel
 
             listing.Gap(12f);
             var ejectAfterDays = Settings.EjectAfterDays;
-            listing.CheckboxLabeled("Eject after 2 days in vat", ref ejectAfterDays);
+            listing.CheckboxLabeled("Eject after 1 day in vat", ref ejectAfterDays);
             if (ejectAfterDays != Settings.EjectAfterDays)
             {
                 Settings.EjectAfterDays = ejectAfterDays;

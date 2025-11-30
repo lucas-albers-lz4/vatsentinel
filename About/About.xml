@@ -3,7 +3,7 @@
   <packageId>lucas.albers.vatsentinel</packageId>
   <author>Lucas Albers</author>
   <name>Vat Sentinel</name>
-  <description>Set timer on a vat to eject colonists when the timer runs out.</description>
+  <description>Automated growth vat management with configurable age-based ejection. Vat Sentinel monitors pawn development and automatically ejects them at specified biological age milestones (childhood, adolescence, or adulthood), ensuring optimal resource management and eliminating the need for manual monitoring.</description>
   <url>https://github.com/LucasAlbers/VatSentinel</url>
   <supportedVersions>
     <li>1.4</li>
