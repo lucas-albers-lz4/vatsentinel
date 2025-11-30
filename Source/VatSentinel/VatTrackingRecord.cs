@@ -9,6 +9,7 @@ namespace VatSentinel
         private Thing _vat;
         private float _targetAgeYears = float.PositiveInfinity;
         private int _entryTick = -1;
+        private float _entryAgeYears = -1f; // Age of pawn when they entered the vat
 
         public VatTrackingRecord()
         {
@@ -23,6 +24,7 @@ namespace VatSentinel
         internal Thing Vat => _vat;
         internal float TargetAgeYears => _targetAgeYears;
         internal int EntryTick => _entryTick;
+        internal float EntryAgeYears => _entryAgeYears;
         internal bool HasTarget => !float.IsPositiveInfinity(_targetAgeYears) || _entryTick >= 0;
         internal bool HasValidPawn => _pawn != null && !_pawn.DestroyedOrNull() && !_pawn.Dead;
         internal bool HasValidVat => _vat != null && !_vat.DestroyedOrNull();
@@ -34,13 +36,24 @@ namespace VatSentinel
         internal void SetTrackedEntities(Pawn pawn, Thing vat)
         {
             var wasNew = _pawn == null || _vat == null;
+            var oldPawn = _pawn; // Save old pawn reference before updating
+            var oldVat = _vat; // Save old vat reference before updating
+            var vatChanged = oldVat != null && vat != null && oldVat.ThingID != vat.ThingID;
+            var samePawn = oldPawn != null && pawn != null && oldPawn.ThingID == pawn.ThingID;
+            // Pawn is re-inserted if: same pawn, and (old pawn was spawned/ejected OR vat changed)
+            var pawnReinserted = samePawn && (oldPawn.Spawned || vatChanged);
+            
             _pawn = pawn;
             _vat = vat;
             
-            if (wasNew && Find.TickManager != null)
+            // Set entry age/tick when:
+            // 1. This is a completely new record (wasNew)
+            // 2. The pawn is being re-inserted (was previously ejected/spawned, or moved to different vat)
+            if ((wasNew || pawnReinserted) && Find.TickManager != null && pawn?.ageTracker != null)
             {
                 _entryTick = Find.TickManager.TicksGame;
-                VatSentinelLogger.Debug($"Recorded entry tick {_entryTick} for pawn {pawn?.LabelShort ?? "null"} in vat {vat?.LabelCap ?? "null"}");
+                _entryAgeYears = pawn.ageTracker.AgeBiologicalYearsFloat;
+                VatSentinelLogger.Debug($"Recorded entry tick {_entryTick} and entry age {_entryAgeYears:F4} years for pawn {pawn?.LabelShort ?? "null"} in vat {vat?.LabelCap ?? "null"} (wasNew={wasNew}, reinserted={pawnReinserted})");
             }
         }
 
@@ -55,7 +68,7 @@ namespace VatSentinel
                 return !float.IsPositiveInfinity(previous);
             }
 
-            _targetAgeYears = schedule.GetNextTargetAge(_pawn, settings, _entryTick);
+            _targetAgeYears = schedule.GetNextTargetAge(_pawn, settings, _entryTick, _entryAgeYears);
             var changed = Math.Abs(_targetAgeYears - previous) > 1e-6f;
             
             if (changed)
@@ -84,6 +97,16 @@ namespace VatSentinel
             Scribe_References.Look(ref _vat, "vat");
             Scribe_Values.Look(ref _targetAgeYears, "targetAgeYears", float.PositiveInfinity);
             Scribe_Values.Look(ref _entryTick, "entryTick", -1);
+            Scribe_Values.Look(ref _entryAgeYears, "entryAgeYears", -1f);
+            
+            // If loading an old save without entryAgeYears, try to calculate it from current age
+            // This is a best-effort approach for backward compatibility
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && _entryAgeYears < 0 && _pawn?.ageTracker != null)
+            {
+                // We can't know the exact entry age, so we'll use current age as a fallback
+                // This means the logic will work, but may not be perfect for old saves
+                _entryAgeYears = _pawn.ageTracker.AgeBiologicalYearsFloat;
+            }
         }
     }
 }

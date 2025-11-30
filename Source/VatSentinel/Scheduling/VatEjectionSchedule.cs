@@ -12,19 +12,26 @@ namespace VatSentinel.Scheduling
 
         // LOGGING STRATEGY: This method is called frequently (every tick via RegisterPawn/SyncVatState),
         // so we do NOT log here to avoid log spam. Logging occurs in the scheduler during hourly evaluations.
-        internal float GetNextTargetAge(Pawn pawn, VatSentinelSettings settings, int entryTick)
+        // 
+        // BUG FIX: We now use entryAgeYears instead of currentAge to determine which thresholds apply.
+        // If a pawn enters the vat at age 3.5, we skip the age 3 threshold and use the next applicable one (7 or 13).
+        internal float GetNextTargetAge(Pawn pawn, VatSentinelSettings settings, int entryTick, float entryAgeYears)
         {
             if (pawn?.ageTracker == null || settings == null)
             {
                 return float.PositiveInfinity;
             }
 
-            var currentAge = pawn.ageTracker.AgeBiologicalYearsFloat;
+            // If entryAgeYears is invalid (negative), fall back to current age for backward compatibility
+            // This handles edge cases where entryAgeYears wasn't set (e.g., old saves)
+            var ageToCompare = entryAgeYears >= 0 ? entryAgeYears : pawn.ageTracker.AgeBiologicalYearsFloat;
             var bestAge = float.PositiveInfinity;
 
-            Evaluate(_childRule, settings.EjectAtChild);
-            Evaluate(_age7Rule, settings.EjectAtAge7);
-            Evaluate(_teenRule, settings.EjectAtTeen);
+            // Evaluate rules based on entry age, not current age
+            // Only consider thresholds that are greater than the entry age
+            Evaluate(_childRule, settings.EjectAtChild, ageToCompare);
+            Evaluate(_age7Rule, settings.EjectAtAge7, ageToCompare);
+            Evaluate(_teenRule, settings.EjectAtTeen, ageToCompare);
 
             // Check time-based target (1 day) - only used for calculation, not logged here
             // Time-based ejection is checked separately in the scheduler
@@ -35,7 +42,7 @@ namespace VatSentinel.Scheduling
 
             return bestAge;
 
-            void Evaluate(VatEjectionRule rule, bool enabled)
+            void Evaluate(VatEjectionRule rule, bool enabled, float entryAge)
             {
                 if (!enabled)
                 {
@@ -44,19 +51,15 @@ namespace VatSentinel.Scheduling
 
                 var targetAge = rule.TargetAgeYears;
                 
-                if (currentAge >= targetAge - StageEpsilon)
+                // Only consider thresholds that are greater than the entry age
+                // If the pawn entered at age 3.5 and the threshold is 3, skip it and use the next one
+                if (entryAge >= targetAge - StageEpsilon)
                 {
-                    // Already past this stage - set target to current age (or slightly below) to trigger immediate ejection
-                    // Set to currentAge - small value so that currentAge + tolerance >= target will be true
-                    // This ensures ejection triggers immediately even if age increases slightly between ticks
-                    var immediateTarget = currentAge - 0.00005f; // Slightly below current age
-                    if (immediateTarget < bestAge)
-                    {
-                        bestAge = immediateTarget;
-                    }
+                    // Pawn was already past this threshold when they entered - skip it
                     return;
                 }
 
+                // This threshold is applicable - use it if it's the best (lowest) target
                 if (targetAge < bestAge)
                 {
                     bestAge = targetAge;
