@@ -105,6 +105,27 @@ Vat Sentinel is built on RimWorld's modding framework using Harmony for runtime 
 
 **Design Pattern**: Aspect-oriented programming via Harmony
 
+#### RimWorld Vat API Integration
+
+**Key RimWorld Types**:
+- `Building_GrowthVat`: Main vat building class containing all vat functionality
+  - `TryAcceptPawn(Pawn pawn)`: Entry point when a pawn is queued for vat insertion
+  - `Notify_PawnRemoved()`: Called when a pawn is removed from the vat
+  - `Tick()`: Performs gestation progression and growth
+  - `SelectedPawn` (property): Current occupant reference (accessed via reflection)
+  - `Finish()`: Method used to eject pawns from the vat
+
+**Note**: `CompVatGrower` does not exist as a separate component in RimWorld 1.6. All vat functionality is implemented directly in `Building_GrowthVat`.
+
+**Implementation Hook Points**:
+1. **Registration**: Patch `Building_GrowthVat.TryAcceptPawn` (postfix) to call `VatSentinelWorldComponent.RegisterPawn` after verifying the pawn was actually accepted via `SelectedPawn` property.
+2. **Unregistration**: Patch `Building_GrowthVat.Notify_PawnRemoved` (postfix) to call `VatSentinelWorldComponent.UnregisterPawn` when a pawn is removed.
+3. **Tick Monitoring**: Patch `Building_GrowthVat.Tick` (postfix) which calls `VatSentinelScheduler.Tick()` (hourly evaluation), `VatSentinelWorldComponent.SyncVatState()` (state synchronization), and `VatSentinelCleanupUtility.Tick()` (cleanup operations).
+4. **Age Evaluation**: `VatSentinelScheduler.Tick()` checks the pawn's `ageTracker.AgeBiologicalYearsFloat` against the scheduled target age and triggers ejection via `Building_GrowthVat.Finish()` when thresholds are met.
+5. **State Synchronization**: `SyncVatState()` ensures tracking records match actual vat state, registering missing pawns and removing invalid records.
+
+The implementation patches `Building_GrowthVat` directly since all vat functionality is contained within this class, not a separate component.
+
 ## Data Flow
 
 ### Pawn Registration Flow
@@ -193,7 +214,7 @@ When RimWorld API is unavailable or changed:
 
 ### Optimization Strategies
 
-1. **Evaluation Interval**: Ejection evaluation runs every 60 ticks (~1 second) rather than every tick
+1. **Evaluation Interval**: Ejection evaluation runs every 2,500 ticks (1 hour) rather than every tick
 2. **Lazy Evaluation**: Reflection members are cached using `Lazy<T>` pattern
 3. **Selective Logging**: Debug logging is conditional to avoid performance impact
 4. **Cleanup Batching**: Invalid record cleanup runs every 600 ticks, not continuously

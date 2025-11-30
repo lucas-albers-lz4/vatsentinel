@@ -43,18 +43,24 @@
 ### Phase 6: Testing & Release Prep
 - [x] Validate mod in RimWorld developer mode (new game and existing saves). *Core functionality validated - mod loads, registers events, triggers ejections successfully*
 - [x] Fix ejection method issue. *Resolved - using `Finish()` method for ejection*
-- [x] Fix age-based ejection logic. *Resolved - pawns past target age now trigger immediate ejection*
+- [x] Fix age-based ejection logic. *Resolved - entry age tracking prevents immediate ejection of pawns re-inserted after passing thresholds*
+- [x] Fix operational vat checking. *Resolved - scheduler now skips turned-off/unpowered vats*
+- [x] Optimize logging frequency. *Resolved - reduced to hourly evaluations, removed verbose logging from high-frequency paths*
+- [x] Update documentation. *Completed - removed age 18 references, updated all docs to reflect ages 3, 7, 13*
 - [ ] Perform compatibility smoke test with reference mods.
+- [ ] Execute critical pre-release test cases (see TESTING.md).
 - [ ] Prepare release notes and version number.
 - [ ] Package mod folder for distribution (Steam Workshop/local zip).
 
 ### Session Summary - Recent Progress
 
 **Major Fixes Completed:**
-1. **Age-Based Ejection Logic** - Fixed issue where pawns already past target age were being ignored. Now sets immediate ejection target when pawn exceeds threshold.
+1. **Entry Age Tracking Bug Fix** - Fixed critical bug where pawns re-inserted after being ejected would be immediately ejected again if they were already past a threshold. Now tracks entry age and only considers thresholds greater than entry age.
 2. **Ejection Method Discovery** - Discovered that RimWorld 1.6 uses `Finish()` method (0 parameters) instead of expected `TryEjectPawn()` or `EjectContents()`. Updated code to use `Finish()` as primary ejection method.
-3. **Time-Based Ejection** - Changed from 2 days to 1 day for development/testing purposes.
-4. **Error Handling** - Enhanced error reporting with detailed messages and comprehensive logging for debugging.
+3. **Operational Vat Checking** - Added checks to skip turned-off/unpowered vats during hourly evaluations to prevent unnecessary logging and processing.
+4. **Logging Optimization** - Reduced logging frequency from every second to hourly evaluations, removed verbose logging from high-frequency paths (SyncVatState, GetNextTargetAge).
+5. **Settings Mid-Game Changes** - Verified that settings changes trigger immediate recalculation of all tracked pawn schedules.
+6. **Documentation Updates** - Removed all references to age 18 ejection (handled by RimWorld), updated to reflect ages 3, 7, 13.
 
 **Code Quality Improvements:**
 1. **Linting Setup** - Added StyleCop.Analyzers, Microsoft.CodeAnalysis.NetAnalyzers, and EditorConfig for professional code quality standards.
@@ -68,14 +74,18 @@
    - CHANGELOG.md - Version history tracking
 
 **Current Status:**
-- ✅ Core functionality working: Age-based ejection at growth stages (3, 7, 13 years) and time-based ejection (1 day, development/testing only, defaults to off). Note: Age 18 removed as RimWorld automatically ejects pawns at adulthood.
+- ✅ Core functionality working: Age-based ejection at growth stages (3, 7, 13 years) and time-based ejection (1 day, development/testing only, defaults to off)
+- ✅ Entry age tracking: Pawns re-inserted after passing thresholds now correctly use next applicable threshold
 - ✅ Ejection method working: Using `Finish()` method successfully
-- ✅ State management: Tracking and persistence working correctly
+- ✅ State management: Tracking and persistence working correctly with entry age support
 - ✅ Error handling: Comprehensive error reporting and retry logic
+- ✅ Performance: Optimized to hourly evaluations, skips non-operational vats
+- ✅ Settings: Mid-game changes immediately recalculate all schedules
 - ✅ Code quality: Professional linting and documentation standards
+- ✅ Documentation: Complete and accurate (README, ARCHITECTURE, TESTING, LINTING, CONTRIBUTING, CHANGELOG)
 
 **Next Steps:**
-- Reduce verbose debug logging (optional - can be left for troubleshooting)
+- Execute critical pre-release test cases (see below)
 - Perform compatibility testing with reference mods
 - Prepare for release (version number, release notes, packaging)
 

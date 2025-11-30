@@ -2,6 +2,8 @@
 
 This document outlines the comprehensive testing procedures for Vat Sentinel, ensuring reliability, compatibility, and correctness across all functionality.
 
+**Quick Start**: For a fast validation before release, see the [Quick Smoke Test](#quick-smoke-test) section at the end of this document.
+
 ### 1. Prerequisites
 
 **Environment Setup:**
@@ -64,69 +66,105 @@ This document outlines the comprehensive testing procedures for Vat Sentinel, en
    - Start a new save game (ensures clean world component state)
    - Verify Vat Sentinel loads without errors in the log
 
-2. **Basic Ejection Testing:**
-   - Use debug tools to spawn a growth vat (`Building_GrowthVat`)
-   - Spawn a pawn embryo or baby and insert into the vat using debug actions
-   - Verify pawn registration: Check logs for "RegisterPawn" messages
-   - Fast-forward time using `Ctrl` + `1/2/3` until biological age reaches 3 years
-   - **Expected Result**: Automatic ejection occurs with success notification
-   - Verify pawn is no longer in the vat and is accessible in the world
+2. **Age Threshold Ejection Testing (CRITICAL):**
+   - **Test Age 3**: Enable only "Eject when reaching childhood (age 3)"
+     - Insert pawn at age < 3
+     - Fast-forward to age 3
+     - **Expected Result**: Ejection occurs at age 3
+   - **Test Age 7**: Enable only "Eject at growth moment (age 7)"
+     - Insert pawn at age < 7 (but > 3)
+     - Fast-forward to age 7
+     - **Expected Result**: Ejection occurs at age 7
+   - **Test Age 13**: Enable only "Eject when reaching adolescence (age 13)"
+     - Insert pawn at age < 13 (but > 7)
+     - Fast-forward to age 13
+     - **Expected Result**: Ejection occurs at age 13
 
-3. **Settings Configuration Testing:**
-   - Open Options → Mod Settings → Vat Sentinel
-   - **Test Case 1**: Disable "Eject at childhood (age 3)", enable "Eject at adolescence (age 13)"
-   - Reinsert a pawn and fast-forward to age 3
-   - **Expected Result**: No ejection at age 3
-   - Continue to age 13
-   - **Expected Result**: Ejection occurs at age 13
-   - **Test Case 2**: Enable all thresholds (3, 7, 13)
-   - **Expected Result**: Ejection occurs at the earliest enabled threshold (age 3)
+3. **Entry Age Tracking Bug Fix (CRITICAL):**
+   - Enable "Eject when reaching childhood (age 3)"
+   - Insert a pawn at age < 3 years into a vat
+   - Fast-forward until pawn reaches age 3 and is ejected
+   - **Re-insert the same pawn** (now age 3+) back into the vat
+   - Wait for next hourly check
+   - **Expected Result**: 
+     - Pawn should NOT be immediately ejected
+     - If age 7 or 13 thresholds are enabled, pawn should wait for those thresholds
+     - If no other thresholds enabled, pawn should remain until RimWorld's automatic ejection at 18
 
-4. **Multiple Threshold Testing:**
-   - Configure mod to eject at multiple ages (e.g., 3 and 13)
-   - Insert pawn and verify ejection occurs at age 3 (earliest threshold)
-   - Reconfigure to only eject at age 13
-   - Insert new pawn and verify no ejection at age 3, but ejection at age 13
+4. **Multiple Thresholds - Earliest Wins (CRITICAL):**
+   - Enable all three thresholds (3, 7, 13)
+   - Insert pawn at age < 3
+   - Fast-forward to age 3
+   - **Expected Result**: Ejection occurs at age 3 (earliest enabled threshold), not at 7 or 13
+
+5. **Settings Changes Mid-Game (CRITICAL):**
+   - Enable "Eject when reaching childhood (age 3)"
+   - Insert pawn at age < 3
+   - **While pawn is in vat**, change settings to disable age 3, enable age 13
+   - Fast-forward to age 3
+   - **Expected Result**: 
+     - No ejection at age 3 (setting was disabled)
+     - Ejection occurs at age 13 (new setting active)
 
 ### 5. Error Handling and Edge Cases
 
 **Failure Scenario Testing:**
 
-1. **Blocked Ejection Testing:**
-   - Insert a pawn into a vat
-   - Forbid the vat or place walls to block access
-   - Fast-forward to trigger ejection age
+1. **Blocked Ejection Retry (CRITICAL):**
+   - Insert pawn into vat
+   - Fast-forward until ejection should occur
+   - **Before ejection**, forbid the vat or block access with walls
+   - Wait for ejection attempt
    - **Expected Result**: 
      - Ejection attempt fails
-     - Warning notification displayed to player
-     - Log entry: "Ejecting [pawn] from [vat] failed. Will retry."
-     - Pawn remains in vat
-     - Retry scheduled (check logs for retry scheduling)
+     - Warning notification displayed
+     - Retry is scheduled
+     - After unblocking, ejection succeeds on retry
 
-2. **Manual Removal Testing:**
-   - Insert a pawn and verify registration
-   - Manually remove the pawn using RimWorld's standard interface
-   - **Expected Result**:
-     - Pawn is removed from vat
-     - Tracking record is cleaned up automatically
-     - Log entry: "Unregistered pawn [name] from vat tracking" or "Pruned invalid vat tracking records"
+2. **Manual Removal Cleanup (CRITICAL):**
+   - Insert pawn into vat
+   - Verify pawn is tracked (check logs)
+   - **Manually remove pawn** using RimWorld interface
+   - Check logs
+   - **Expected Result**: 
+     - Tracking record is removed/cleaned up
      - No orphaned records remain
+     - No errors in logs
 
-3. **Save/Load Testing:**
-   - Insert a pawn and configure ejection settings
-   - Save the game
-   - Load the saved game
-   - **Expected Result**:
-     - Pawn tracking persists across save/load
-     - Ejection schedules are recalculated on load
-     - No errors during save/load process
-     - Ejection continues to work correctly after load
+3. **Save/Load Persistence (CRITICAL):**
+   - Enable "Eject when reaching childhood (age 3)"
+   - Insert pawn at age < 3
+   - **Save the game**
+   - **Load the saved game**
+   - Fast-forward to age 3
+   - **Expected Result**: 
+     - Pawn is still tracked after load
+     - Ejection occurs at age 3
+     - No errors in logs
 
-4. **State Validation Testing:**
-   - Insert multiple pawns into different vats
-   - Verify each pawn is tracked independently
-   - Remove one pawn manually
-   - **Expected Result**: Other tracked pawns remain unaffected
+4. **Operational Vat Checking:**
+   - Insert pawn into vat
+   - **Turn off the vat** (flick switch) or remove power
+   - Check logs
+   - **Expected Result**: 
+     - No "No occupant in vat" messages for turned-off vats
+     - No unnecessary processing of non-operational vats
+
+5. **Time-Based Ejection (Development Feature):**
+   - Enable "Eject after 1 day in vat (development/testing only)"
+   - Insert pawn into vat
+   - Fast-forward 1 day (60,000 ticks)
+   - **Expected Result**: Ejection occurs after 1 day regardless of age
+
+6. **Multiple Vats Simultaneously:**
+   - Enable "Eject when reaching childhood (age 3)"
+   - Create 3+ vats
+   - Insert different pawns into each vat (all at age < 3)
+   - Fast-forward and verify each pawn ejects at age 3
+   - **Expected Result**: 
+     - Each pawn is tracked independently
+     - All pawns eject at the same threshold (age 3) since thresholds are global
+     - No interference between different vats/pawns
 
 ### 6. Compatibility and Regression Testing
 
@@ -168,18 +206,34 @@ This document outlines the comprehensive testing procedures for Vat Sentinel, en
 ### 8. Test Sign-Off
 
 **Completion Criteria:**
+- [ ] All critical test cases pass (marked CRITICAL in Section 4-5)
 - [ ] All functional tests pass (Section 4)
 - [ ] All error handling tests pass (Section 5)
 - [ ] Compatibility tests pass (Section 6)
 - [ ] Performance is acceptable (Section 7)
 - [ ] No critical bugs or crashes identified
 - [ ] Log output is clean (no unexpected errors)
+- [ ] Settings UI works correctly
+- [ ] Mod loads without errors
+- [ ] Version number is correct in AssemblyInfo.cs and About.xml
+- [ ] Documentation is accurate and complete
 
 **Documentation:**
 - Update `TODO.md` Phase 6 checklist with test results
 - Document any issues found in GitHub Issues
 - Capture log snippets or screenshots for any anomalies
 - Update `CHANGELOG.md` with test coverage information
+
+### 9. Quick Smoke Test
+
+For rapid validation before release (approximately 5 minutes), test these critical scenarios:
+
+1. **Entry Age Tracking Bug Fix** - Re-insert a pawn after ejection and verify it's not immediately ejected again
+2. **Age 3 Threshold** - Verify basic ejection at age 3 works
+3. **Settings Changes Mid-Game** - Change settings while pawn is in vat and verify immediate effect
+4. **Save/Load** - Save and load game with tracked pawn, verify persistence
+
+These four tests cover the most critical functionality and recent bug fixes. If all pass, the mod is ready for release testing.
 
 ### 9. Automated Testing (Future)
 
