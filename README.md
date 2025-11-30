@@ -108,7 +108,6 @@ See [`docs/LINTING.md`](docs/LINTING.md) for detailed information on code qualit
 Testing procedures are documented in [`docs/TESTING.md`](docs/TESTING.md). The testing strategy includes:
 
 - Unit testing for age calculation logic
-- Integration testing with RimWorld's vat system
 - Regression testing across game versions
 
 ## Contributing
@@ -141,7 +140,6 @@ Vat Sentinel uses conservative Harmony patching to minimize conflicts. If you en
 
 - Ejection requires the vat to be accessible (not blocked by walls or forbidden)
 - Manual pawn removal will clear tracking records automatically
-- Save game compatibility is maintained across mod versions
 
 ## License
 BSD 3-Clause  [`LICENSE`](LICENSE)

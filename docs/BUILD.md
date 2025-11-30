@@ -11,9 +11,9 @@ The following tools are installed via Chocolatey to set up the development envir
 - **.NET Framework 4.7.2 Developer Pack** (`netfx-4.7.2-devpack`): Required for compiling against .NET Framework 4.7.2
 - **Visual Studio 2022 Build Tools** (`visualstudio2022buildtools`): Provides MSBuild and compilation tools
 
-**Installation**:
+**Installation**: (Elevated Command Prompt)
 ```powershell
-choco install netfx-4.7.2-devpack visualstudio2022buildtools -y
+choco install packages.config 
 ```
 
 These are one-time setup requirements for the development environment. Chocolatey is used for system-level development tools, not project dependencies.
