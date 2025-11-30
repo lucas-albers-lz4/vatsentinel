@@ -3,7 +3,7 @@
   <packageId>lucas.albers.vatsentinel</packageId>
   <author>Lucas Albers</author>
   <name>Vat Sentinel</name>
-  <modVersion IgnoreIfNoMatchingField="True">0.0.0.9</modVersion>
+  <modVersion IgnoreIfNoMatchingField="True">0.0.0.10</modVersion>
   <description>Automated growth vat management with configurable age-based ejection. Vat Sentinel monitors pawn development and automatically ejects them at specified biological age milestones (childhood, adolescence, or adulthood), ensuring optimal resource management and eliminating the need for manual monitoring.</description>
   <url>https://github.com/LucasAlbers/VatSentinel</url>
   <supportedVersions>
