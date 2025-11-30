@@ -3,8 +3,8 @@
   <packageId>lucas.albers.vatsentinel</packageId>
   <author>Lucas Albers</author>
   <name>Vat Sentinel</name>
-  <modVersion IgnoreIfNoMatchingField="True">0.0.0.10</modVersion>
-  <description>Automated growth vat management with configurable age-based ejection. Vat Sentinel monitors pawn development and automatically ejects them at specified biological age milestones (childhood, adolescence, or adulthood), ensuring optimal resource management and eliminating the need for manual monitoring.</description>
+  <modVersion IgnoreIfNoMatchingField="True">0.0.0.15</modVersion>
+  <description>Eject child from growth vat at age 3, 7, 13. User configurable in mod settings.</description>
   <url>https://github.com/lucas-albers-lz4/vatsentinel</url>
   <supportedVersions>
     <li>1.6</li>
@@ -16,11 +16,25 @@
     <li>Ludeon.RimWorld.Ideology</li>
     <li>ludeon.rimworld.biotech</li>
     <li>Ludeon.RimWorld.Anomaly</li>
+    <li>brrainz.harmony</li>
+    <li>unlimitedhugs.hugslib</li>
   </loadAfter>
   <modDependencies>
     <li>
       <packageId>ludeon.rimworld.biotech</packageId>
       <displayName>Biotech</displayName>
+    </li>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+    </li>
+    <li>
+      <packageId>unlimitedhugs.hugslib</packageId>
+      <displayName>HugsLib</displayName>
+      <downloadUrl>https://github.com/UnlimitedHugs/RimWorldModTemplate/releases/latest</downloadUrl>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
     </li>
   </modDependencies>
 </ModMetaData>
