@@ -47,27 +47,17 @@ namespace VatSentinel.Patches
         [HarmonyPostfix]
         private static void Tick_Postfix(Building_GrowthVat __instance)
         {
-            // Only log occasionally to avoid spam
-            var tickManager = Find.TickManager;
-            var shouldLog = tickManager != null && tickManager.TicksGame % 3000 == 0; // Every 3000 ticks (~50 seconds)
-            
-            if (shouldLog)
-            {
-                VatSentinelLogger.Debug($"Building_GrowthVat.Tick.Postfix: Called at tick {tickManager.TicksGame}");
-            }
-            
             var manager = VatSentinelWorldComponent.Instance;
             if (manager == null)
             {
-                if (shouldLog)
-                {
-                    VatSentinelLogger.Debug("Tick.Postfix: WorldComponent instance is null");
-                }
                 return;
             }
             
+            // Sync state and cleanup run every tick (lightweight operations)
             manager.SyncVatState(__instance);
             VatSentinelCleanupUtility.Tick(__instance);
+            
+            // Scheduler evaluation runs hourly (handles its own interval check)
             VatSentinelScheduler.Tick(__instance);
         }
     }

@@ -23,10 +23,10 @@
 - [x] Add debug logging for pawn tracking events (toggle via settings). *Implemented via `VatSentinelLogger` (currently always-on for debugging)*
 
 ### Phase 3: Age Threshold Logic
-- [x] Implement configuration model for age thresholds (birth, age 3 defaults) via `VatEjectionSchedule`. *Implemented with `VatEjectionRule` for Child(3), Teen(13), Adult(18)*
+- [x] Implement configuration model for age thresholds (birth, age 3 defaults) via `VatEjectionSchedule`. *Implemented with `VatEjectionRule` for Child(3), Age7(7), Teen(13). These correspond to RimWorld growth stages. Note: Age 18 (Adult) removed as RimWorld automatically ejects pawns at adulthood.*
 - [x] Calculate ejection ticks from pawn biological age progression. *Implemented in `VatEjectionSchedule.GetNextTargetAge` and `VatSentinelScheduler.Tick`*
 - [x] Schedule ejection events and handle edge cases (premature removal, failed ejection retries). *Retry logic in `VatTrackingRecord.ScheduleRetry` and `VatSentinelScheduler.TryEject`*
-- [x] Add settings UI for enabling/disabling specific thresholds. *Implemented in `VatSentinelMod.DoSettingsWindowContents` with Child, Teen, Adult, and AfterDays options*
+- [x] Add settings UI for enabling/disabling specific thresholds. *Implemented in `VatSentinelMod.DoSettingsWindowContents` with Child(3), Age7(7), Teen(13), and AfterDays options. Time-based ejection (AfterDays) defaults to off and is marked for development/testing purposes only.*
 
 ### Phase 4: Ejection Execution
 - [x] Patch vat tick/update methods to trigger ejection when scheduled. *Implemented in `BuildingGrowthVatPatches.Tick_Postfix` calling `VatSentinelScheduler.Tick`*
@@ -68,7 +68,7 @@
    - CHANGELOG.md - Version history tracking
 
 **Current Status:**
-- ✅ Core functionality working: Age-based ejection (3, 13, 18 years) and time-based ejection (1 day)
+- ✅ Core functionality working: Age-based ejection at growth stages (3, 7, 13 years) and time-based ejection (1 day, development/testing only, defaults to off). Note: Age 18 removed as RimWorld automatically ejects pawns at adulthood.
 - ✅ Ejection method working: Using `Finish()` method successfully
 - ✅ State management: Tracking and persistence working correctly
 - ✅ Error handling: Comprehensive error reporting and retry logic

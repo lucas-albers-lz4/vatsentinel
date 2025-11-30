@@ -100,6 +100,53 @@
     <MakeDir Directories="$(RimWorldReferenceDir)" />
     <Copy SourceFiles="@(RimWorldReferenceSource)" DestinationFolder="$(RimWorldReferenceDir)" SkipUnchangedFiles="true" />
   </Target>
+  <UsingTask TaskName="ExtractVersionFromAssemblyInfo" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <AssemblyInfoFile ParameterType="System.String" Required="true" />
+      <Version ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+          if (File.Exists(AssemblyInfoFile))
+          {
+            string content = File.ReadAllText(AssemblyInfoFile);
+            Match match = Regex.Match(content, @"AssemblyFileVersion\(""([^""]+)""\)");
+            if (match.Success)
+            {
+              Version = match.Groups[1].Value;
+              Log.LogMessage(MessageImportance.Normal, "Extracted version from AssemblyInfo.cs: " + Version);
+            }
+            else
+            {
+              Log.LogWarning("Could not extract version from AssemblyInfo.cs");
+            }
+          }
+          else
+          {
+            Log.LogWarning("AssemblyInfo.cs not found at: " + AssemblyInfoFile);
+          }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  <Target Name="UpdateAboutXmlVersion" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <AssemblyInfoFile>$(MSBuildProjectDirectory)\Properties\AssemblyInfo.cs</AssemblyInfoFile>
+      <AboutXmlFile>$(MSBuildProjectDirectory)\..\..\About\About.xml</AboutXmlFile>
+    </PropertyGroup>
+    <ExtractVersionFromAssemblyInfo AssemblyInfoFile="$(AssemblyInfoFile)">
+      <Output TaskParameter="Version" PropertyName="ExtractedVersion" />
+    </ExtractVersionFromAssemblyInfo>
+    <XmlPoke Condition="'$(ExtractedVersion)' != ''" 
+             XmlInputPath="$(AboutXmlFile)" 
+             Query="/ModMetaData/modVersion" 
+             Value="$(ExtractedVersion)" />
+    <Message Text="Updated About.xml modVersion to $(ExtractedVersion)" Condition="'$(ExtractedVersion)' != ''" />
+  </Target>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
 

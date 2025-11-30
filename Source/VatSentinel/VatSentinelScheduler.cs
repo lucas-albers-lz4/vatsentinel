@@ -10,7 +10,8 @@ namespace VatSentinel
 {
     internal static class VatSentinelScheduler
     {
-        private const int EvaluationIntervalTicks = 60;
+        // Check every 1 hour (60,000 ticks per day / 24 hours = 2,500 ticks per hour)
+        private const int EvaluationIntervalTicks = 2500;
         private const float AgeToleranceYears = 0.0001f; // ~0.036 RimWorld days
 
         private static readonly MethodInfo BuildingTryEjectPawn = AccessTools.Method(typeof(Building_GrowthVat), "TryEjectPawn");
@@ -40,18 +41,15 @@ namespace VatSentinel
 
             var ticksGame = tickManager.TicksGame;
             
-            // Log every 3000 ticks to confirm we're being called
-            if (ticksGame % 3000 == 0)
-            {
-                VatSentinelLogger.Debug($"Tick: VatSentinelScheduler.Tick called for vat {vat.LabelCap} at tick {ticksGame}");
-            }
-            
+            // LOGGING STRATEGY: This method is called every tick, but we only evaluate every hour (2,500 ticks)
+            // to reduce CPU usage. We log during hourly evaluations to track scheduler activity.
+            // Only evaluate every hour (2,500 ticks = 1 hour in RimWorld: 60,000 ticks/day / 24 hours)
             if (ticksGame % EvaluationIntervalTicks != 0)
             {
                 return;
             }
 
-            VatSentinelLogger.Debug($"Tick: Evaluating vat {vat.LabelCap} at tick {ticksGame}");
+            VatSentinelLogger.Debug($"Tick: Evaluating vat {vat.LabelCap} at tick {ticksGame} (hourly check)");
 
             var occupant = CompVatGrowerReflection.GetPawnBeingGrown(vat);
             if (occupant == null)
@@ -83,8 +81,6 @@ namespace VatSentinel
                 return;
             }
 
-            VatSentinelLogger.Debug($"Tick: Record for {occupant.LabelShort}: targetAge={record.TargetAgeYears:F4} years, entryTick={record.EntryTick}, currentTick={ticksGame}");
-
             manager.RecalculateScheduleFor(occupant);
             record = manager.GetRecord(occupant); // Refresh record after recalculation
 
@@ -100,8 +96,7 @@ namespace VatSentinel
             var ageWithTolerance = currentAge + AgeToleranceYears;
             var shouldEject = ageWithTolerance >= targetAge;
             
-            VatSentinelLogger.Debug($"Tick: {occupant.LabelShort} current age={currentAge:F6} years, target age={targetAge:F6} years");
-            VatSentinelLogger.Debug($"Tick: Age comparison: {currentAge:F6} + {AgeToleranceYears:F6} = {ageWithTolerance:F6} >= {targetAge:F6} = {shouldEject}");
+            VatSentinelLogger.Debug($"Tick: {occupant.LabelShort} - age={currentAge:F4} years, target={targetAge:F4} years, eject={shouldEject}");
 
             // Check time-based ejection (1 day)
             var settings = VatSentinelMod.Instance?.Settings;
@@ -115,12 +110,8 @@ namespace VatSentinel
             // Check age-based ejection
             if (shouldEject)
             {
-                VatSentinelLogger.Debug($"Tick: Age-based ejection triggered for {occupant.LabelShort} (age {currentAge:F6} + tolerance {AgeToleranceYears:F6} = {ageWithTolerance:F6} >= target {targetAge:F6})");
+                VatSentinelLogger.Debug($"Tick: Age-based ejection triggered for {occupant.LabelShort}");
                 TryEject(vat, occupant);
-            }
-            else
-            {
-                VatSentinelLogger.Debug($"Tick: Ejection conditions not met for {occupant.LabelShort} (age {currentAge:F6} + tolerance {AgeToleranceYears:F6} = {ageWithTolerance:F6} < target {targetAge:F6})");
             }
         }
 

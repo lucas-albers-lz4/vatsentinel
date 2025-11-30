@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.InteropServices;
 using HarmonyLib;
 using UnityEngine;
 using Verse;
@@ -36,6 +37,14 @@ namespace VatSentinel
                 changed = true;
             }
 
+            var ejectAtAge7 = Settings.EjectAtAge7;
+            listing.CheckboxLabeled("Eject at growth moment (age 7)", ref ejectAtAge7);
+            if (ejectAtAge7 != Settings.EjectAtAge7)
+            {
+                Settings.EjectAtAge7 = ejectAtAge7;
+                changed = true;
+            }
+
             var ejectAtTeen = Settings.EjectAtTeen;
             listing.CheckboxLabeled("Eject when reaching adolescence (age 13)", ref ejectAtTeen);
             if (ejectAtTeen != Settings.EjectAtTeen)
@@ -44,17 +53,9 @@ namespace VatSentinel
                 changed = true;
             }
 
-            var ejectAtAdult = Settings.EjectAtAdult;
-            listing.CheckboxLabeled("Eject when reaching adulthood (age 18)", ref ejectAtAdult);
-            if (ejectAtAdult != Settings.EjectAtAdult)
-            {
-                Settings.EjectAtAdult = ejectAtAdult;
-                changed = true;
-            }
-
             listing.Gap(12f);
             var ejectAfterDays = Settings.EjectAfterDays;
-            listing.CheckboxLabeled("Eject after 1 day in vat", ref ejectAfterDays);
+            listing.CheckboxLabeled("Eject after 1 day in vat (development/testing only)", ref ejectAfterDays);
             if (ejectAfterDays != Settings.EjectAfterDays)
             {
                 Settings.EjectAfterDays = ejectAfterDays;
@@ -69,29 +70,48 @@ namespace VatSentinel
             }
         }
 
-        private static string GetModVersion()
+        /// <summary>
+        /// Gets the mod version from AssemblyInfo.cs.
+        /// Note: This version should be kept in sync with the &lt;modVersion&gt; tag in About/About.xml.
+        /// </summary>
+        internal static string GetModVersion()
         {
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
-            return version == null
-                ? "unknown"
-                : $"{version.Major}.{version.Minor}.{version.Build}";
+            var assembly = Assembly.GetExecutingAssembly();
+            
+            // Try AssemblyFileVersion first (from AssemblyInfo.cs)
+            var fileVersionAttr = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
+            if (fileVersionAttr != null && !string.IsNullOrEmpty(fileVersionAttr.Version))
+            {
+                return fileVersionAttr.Version;
+            }
+            
+            // Fallback to AssemblyVersion
+            var version = assembly.GetName().Version;
+            if (version != null)
+            {
+                return $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
+            }
+            
+            return "unknown";
         }
     }
 
     public class VatSentinelSettings : ModSettings
     {
         public bool EjectAtChild = true;
+        public bool EjectAtAge7;
         public bool EjectAtTeen;
-        public bool EjectAtAdult = true;
+        // Note: EjectAfterDays is for development/testing purposes only
         public bool EjectAfterDays;
 
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Values.Look(ref EjectAtChild, "ejectAtChild", true);
+            Scribe_Values.Look(ref EjectAtAge7, "ejectAtAge7");
             Scribe_Values.Look(ref EjectAtTeen, "ejectAtTeen");
-            Scribe_Values.Look(ref EjectAtAdult, "ejectAtAdult", true);
-            Scribe_Values.Look(ref EjectAfterDays, "ejectAfterDays");
+            // EjectAfterDays defaults to false (development/testing only)
+            Scribe_Values.Look(ref EjectAfterDays, "ejectAfterDays", false);
         }
     }
 
@@ -110,34 +130,7 @@ namespace VatSentinel
             VatSentinelLogger.Debug("Initializing Harmony patches...");
             var harmony = new Harmony("lucas.albers.vatsentinel");
             harmony.PatchAll();
-            VatSentinelLogger.Debug("Harmony PatchAll completed. Checking if CompVatGrower type is available...");
-            
-            // Note: Type check during initialization may fail even if Biotech is enabled,
-            // as types may not be loaded yet. The patches use Prepare() methods that check
-            // at runtime, and VatSentinelWorldComponent will verify at game start.
-            var compVatGrowerType = AccessTools.TypeByName("RimWorld.CompVatGrower");
-            if (compVatGrowerType != null)
-            {
-                VatSentinelLogger.Debug($"CompVatGrower type found during initialization: {compVatGrowerType.FullName}");
-                
-                // Verify patches were applied
-                var notifyMethod = AccessTools.Method(compVatGrowerType, "Notify_StartGrowing");
-                var compTickMethod = AccessTools.Method(compVatGrowerType, "CompTick");
-                var notifyPatched = Harmony.GetPatchInfo(notifyMethod);
-                var tickPatched = Harmony.GetPatchInfo(compTickMethod);
-                
-                VatSentinelLogger.Debug($"Notify_StartGrowing patches: {notifyPatched?.Postfixes?.Count ?? 0}");
-                VatSentinelLogger.Debug($"CompTick patches: {tickPatched?.Postfixes?.Count ?? 0}");
-                
-                if ((notifyPatched?.Postfixes?.Count ?? 0) == 0 || (tickPatched?.Postfixes?.Count ?? 0) == 0)
-                {
-                    VatSentinelLogger.Warn("Harmony patches were not applied successfully. Vat Sentinel may not function correctly.");
-                }
-            }
-            else
-            {
-                VatSentinelLogger.Debug("CompVatGrower type not found during initialization (this is normal - types may load later). Will verify when game starts.");
-            }
+            VatSentinelLogger.Debug("Harmony PatchAll completed. Biotech DLC verification will occur when game starts.");
             
             _initialized = true;
         }

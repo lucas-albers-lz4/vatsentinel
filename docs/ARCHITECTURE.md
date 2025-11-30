@@ -203,6 +203,46 @@ When RimWorld API is unavailable or changed:
 - References use RimWorld's reference system (no memory leaks)
 - Periodic cleanup removes orphaned records
 
+## Logging Strategy
+
+Vat Sentinel uses a strategic logging approach to balance debugging information with performance and log readability.
+
+### Logging Frequency
+
+**High-Frequency Operations (No Logging)**:
+- `SyncVatState()`: Called every tick, runs silently to avoid log spam
+- `GetNextTargetAge()`: Called frequently during state sync, no logging
+- `Evaluate()`: Internal calculation method, no logging
+
+**Event-Based Logging**:
+- **Pawn Registration**: Logs when a new pawn is first registered or when ejection target changes
+  - Location: `VatSentinelWorldComponent.RegisterPawn()`
+  - Frequency: Only on meaningful state changes
+  - Purpose: Track when pawns enter vats and when targets are recalculated
+
+**Scheduled Logging**:
+- **Scheduler Evaluation**: Logs during hourly evaluations (every 2,500 ticks = 1 hour)
+  - Location: `VatSentinelScheduler.Tick()`
+  - Frequency: Once per hour per vat
+  - Purpose: Track scheduler activity and ejection checks
+
+**Action-Based Logging**:
+- **Ejection Attempts**: Logs all ejection attempts, successes, and failures
+  - Location: `VatSentinelScheduler.TryEject()`
+  - Frequency: When ejection conditions are met
+  - Purpose: Debug ejection issues and track automatic ejections
+
+**Error Logging**:
+- **Warnings**: Reflection failures, missing components, validation issues
+- **Errors**: Critical failures that prevent functionality
+
+### Logging Best Practices
+
+1. **Avoid Log Spam**: Methods called every tick do not log by default
+2. **Log Meaningful Events**: Only log when state changes or actions occur
+3. **Include Context**: Log messages include pawn names, vat names, and relevant values
+4. **Performance First**: Logging is disabled in high-frequency paths to maintain performance
+
 ## Extension Points
 
 ### Adding New Ejection Rules
