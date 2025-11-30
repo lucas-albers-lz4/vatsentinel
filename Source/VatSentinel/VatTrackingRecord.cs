@@ -41,19 +41,31 @@ namespace VatSentinel
             var vatChanged = oldVat != null && vat != null && oldVat.ThingID != vat.ThingID;
             var samePawn = oldPawn != null && pawn != null && oldPawn.ThingID == pawn.ThingID;
             // Pawn is re-inserted if: same pawn, and (old pawn was spawned/ejected OR vat changed)
-            var pawnReinserted = samePawn && (oldPawn.Spawned || vatChanged);
+            var pawnReinserted = samePawn && (oldPawn != null && oldPawn.Spawned || vatChanged);
+            
+            // Only update entry tick/age if it hasn't been set yet, or if the vat actually changed
+            // Don't update just because pawnReinserted is true - that can be incorrectly true during insertion
+            var entryNotSet = _entryTick < 0 || _entryAgeYears < 0;
             
             _pawn = pawn;
             _vat = vat;
             
-            // Set entry age/tick when:
-            // 1. This is a completely new record (wasNew)
-            // 2. The pawn is being re-inserted (was previously ejected/spawned, or moved to different vat)
-            if ((wasNew || pawnReinserted) && Find.TickManager != null && pawn?.ageTracker != null)
+            // Set entry age/tick only when needed (first time or vat actually changed)
+            // This prevents log spam when SetTrackedEntities is called every tick during normal operation
+            // Note: For re-insertion after ejection, the record should be removed on ejection via UnregisterPawn,
+            // so re-insertion will create a new record (wasNew=true) and entryNotSet will be true
+            if (entryNotSet && Find.TickManager != null && pawn?.ageTracker != null)
             {
                 _entryTick = Find.TickManager.TicksGame;
                 _entryAgeYears = pawn.ageTracker.AgeBiologicalYearsFloat;
                 VatSentinelLogger.Debug($"Recorded entry tick {_entryTick} and entry age {_entryAgeYears:F4} years for pawn {pawn?.LabelShort ?? "null"} in vat {vat?.LabelCap ?? "null"} (wasNew={wasNew}, reinserted={pawnReinserted})");
+            }
+            else if (vatChanged && Find.TickManager != null && pawn?.ageTracker != null)
+            {
+                // Vat changed - update entry for the new vat
+                _entryTick = Find.TickManager.TicksGame;
+                _entryAgeYears = pawn.ageTracker.AgeBiologicalYearsFloat;
+                VatSentinelLogger.Debug($"Recorded entry tick {_entryTick} and entry age {_entryAgeYears:F4} years for pawn {pawn?.LabelShort ?? "null"} in vat {vat?.LabelCap ?? "null"} (vat changed from previous vat, wasNew={wasNew}, reinserted={pawnReinserted})");
             }
         }
 
