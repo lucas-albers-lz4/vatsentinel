@@ -66,6 +66,16 @@ nuget restore VatSentinel.sln
 msbuild VatSentinel.sln /t:Build /p:Configuration=Release /verbosity:minimal
 ```
 
+### Linting
+
+Run code quality checks without a full build:
+
+```batch
+lint.bat
+```
+
+For detailed linting documentation, see [`docs/LINTING.md`](docs/LINTING.md).
+
 ### Build Output
 
 After a successful build:

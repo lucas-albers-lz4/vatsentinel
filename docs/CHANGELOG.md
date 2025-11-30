@@ -34,6 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive debug logging
 - Note: Age 18 (adulthood) ejection is handled automatically by RimWorld and is not configurable
 
-[Unreleased]: https://github.com/LucasAlbers/VatSentinel/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/LucasAlbers/VatSentinel/releases/tag/v0.1.0
+[Unreleased]: https://github.com/lucas-albers-lz4/vatsentinel/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/lucas-albers-lz4/vatsentinel/releases/tag/v0.1.0
 

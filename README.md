@@ -1,18 +1,15 @@
 # Vat Sentinel
 
-A RimWorld mod that provides automated management of growth vats by enforcing configurable biological age limits for pawns. Vat Sentinel monitors pawn development and automatically ejects them at specified age milestones, ensuring optimal resource management and colony efficiency.
+Vat Sentinel monitors pawn development and automatically ejects them at specified age milestones
 
 ## Overview
 
-Vat Sentinel extends RimWorld's Biotech DLC growth vat functionality with intelligent automation. The mod tracks pawns throughout their development cycle and automatically ejects them when they reach configurable age thresholds (childhood at 3 years, growth moment at 7 years, or adolescence at 13 years). This eliminates the need for manual monitoring and prevents pawns from remaining in vats longer than necessary. Note: RimWorld automatically ejects pawns at adulthood (age 18), so that threshold is not configurable.
+Automatically ejects them when they reach configurable age thresholds (childhood at 3 years, growth moment at 7 years, or adolescence at 13 years). This eliminates the need for manual monitoring and prevents pawns from remaining in vats longer than necessary. Note: RimWorld automatically ejects pawns at adulthood (age 18), so that threshold is not configurable.
 
 ### Key Features
 
 - **Automated Age-Based Ejection**: Configurable ejection at biological age milestones (3, 7, or 13 years) corresponding to RimWorld growth stages
 - **Persistent State Management**: Ejection schedules persist across game saves and are recalculated on load
-- **Robust Error Handling**: Retry logic for failed ejections with user notifications
-- **Harmony-Based Integration**: Non-invasive patches that maintain compatibility with other mods
-- **Comprehensive Logging**: Detailed debug logging for troubleshooting and development
 
 ## Requirements
 
@@ -24,14 +21,14 @@ Vat Sentinel extends RimWorld's Biotech DLC growth vat functionality with intell
 
 ### For Players
 
-1. Download the latest release from the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=YOUR_WORKSHOP_ID) or GitHub releases
+1. Download the latest release from the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=YOUR_WORKSHOP_ID) or [GitHub releases](https://github.com/lucas-albers-lz4/vatsentinel/releases)
 2. Extract to your RimWorld `Mods` folder: `%RIMWORLD_ROOT%\Mods\VatSentinel\`
 3. Launch RimWorld and enable "Vat Sentinel" in the Mod Manager
 4. Restart RimWorld when prompted
 
 ### For Developers
 
-See [Building](#building) and [Development](#development) sections below.
+See [`docs/BUILD.md`](docs/BUILD.md) for build setup and [Development](#development) section below.
 
 ## Usage
 
@@ -71,35 +68,7 @@ For detailed architecture documentation, see [`docs/ARCHITECTURE.md`](docs/ARCHI
 
 ## Building
 
-### Prerequisites
-
-- Visual Studio 2022 Build Tools (or Visual Studio 2022)
-- .NET Framework 4.7.2 Developer Pack
-- RimWorld 1.6 reference assemblies (managed via NuGet)
-
-### Quick Build
-
-Run the build script from the repository root:
-
-```batch
-build.bat
-```
-
-This will:
-- Set up the Visual Studio build environment
-- Restore NuGet packages
-- Build the solution with code analyzers enabled
-- Display any compilation errors or analyzer warnings
-
-### Linting
-
-To run code quality checks without a full build:
-
-```batch
-lint.bat
-```
-
-For detailed linting documentation, see [`docs/LINTING.md`](docs/LINTING.md).
+For build setup and instructions, see [`docs/BUILD.md`](docs/BUILD.md).
 
 ## Development
 
@@ -127,27 +96,24 @@ VatSentinel/
 
 ### Code Quality
 
-This project maintains high code quality standards through:
+This project code standards:
 
 - **Static Analysis**: StyleCop.Analyzers and Microsoft.CodeAnalysis.NetAnalyzers
 - **Consistent Formatting**: EditorConfig for cross-IDE compatibility
-- **Comprehensive Logging**: Structured logging for debugging and diagnostics
-- **Error Handling**: Robust exception handling with retry logic
 
 See [`docs/LINTING.md`](docs/LINTING.md) for detailed information on code quality tools and practices.
 
 ### Testing
 
-Comprehensive testing procedures are documented in [`docs/TESTING.md`](docs/TESTING.md). The testing strategy includes:
+Testing procedures are documented in [`docs/TESTING.md`](docs/TESTING.md). The testing strategy includes:
 
 - Unit testing for age calculation logic
 - Integration testing with RimWorld's vat system
-- Compatibility testing with reference mods
 - Regression testing across game versions
 
 ## Contributing
 
-Contributions are welcome! Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for detailed guidelines on:
+Contributions are welcome! Please see [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) for detailed guidelines on:
 
 - Code style and quality standards
 - Development setup and workflow
@@ -169,7 +135,7 @@ Quick start:
 - Enhanced Vat Learning
 - RimWorld Growth Accelerator
 
-Vat Sentinel uses conservative Harmony patching to minimize conflicts. If you encounter compatibility issues, please report them via GitHub Issues.
+Vat Sentinel uses conservative Harmony patching to minimize conflicts. If you encounter compatibility issues, please report them via [GitHub Issues](https://github.com/lucas-albers-lz4/vatsentinel/issues).
 
 ### Known Limitations
 
@@ -178,20 +144,21 @@ Vat Sentinel uses conservative Harmony patching to minimize conflicts. If you en
 - Save game compatibility is maintained across mod versions
 
 ## License
+BSD 3-Clause  [`LICENSE`](LICENSE)
 
-[Specify your license here - e.g., MIT, GPL, etc.]
 
 ## Credits
 
 - **Author**: Lucas Albers
 - **RimWorld**: Developed by Ludeon Studios
 - **Harmony**: Library by Andreas Pardeike
+- **HugsLib**: Developed by UnlimitedHugs
 
 ## Support
 
-- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/LucasAlbers/VatSentinel/issues)
-- **Discussions**: Join discussions on [GitHub Discussions](https://github.com/LucasAlbers/VatSentinel/discussions)
+- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/lucas-albers-lz4/vatsentinel/issues)
+- **Discussions**: Join discussions on [GitHub Discussions](https://github.com/lucas-albers-lz4/vatsentinel/discussions)
 
 ## Changelog
 
-See [`CHANGELOG.md`](CHANGELOG.md) for version history and release notes.
+See [`docs/CHANGELOG.md`](docs/CHANGELOG.md) for version history and release notes.
