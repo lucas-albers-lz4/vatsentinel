@@ -1,21 +1,21 @@
 # Vat Sentinel
 
-Vat Sentinel monitors pawn development and automatically ejects them at specified age milestones
+Vat Sentinel ejects pawns at specified age 
 
 ## Overview
-
-Automatically ejects them when they reach configurable age thresholds (childhood at 3 years, growth moment at 7 years, or adolescence at 13 years). This eliminates the need for manual monitoring and prevents pawns from remaining in vats longer than necessary. Note: RimWorld automatically ejects pawns at adulthood (age 18), so that threshold is not configurable.
+Automatically ejects pawns at configurable age thresholds (3, 7, or 13 years), preventing them from remaining in vats longer than necessary. Note: RimWorld automatically ejects at adulthood (age 18), so that threshold is not configurable.
 
 ### Key Features
 
-- **Automated Age-Based Ejection**: Configurable ejection at biological age milestones (3, 7, or 13 years) corresponding to RimWorld growth stages
+- **Automated Age-Based Ejection**: Configurable ejection at biological age  (3, 7, or 13 years) corresponding to RimWorld growth stages
 - **Persistent State Management**: Ejection schedules persist across game saves and are recalculated on load
 
 ## Requirements
 
 - **RimWorld**: Version 1.6 (also compatible with 1.4 and 1.5)
 - **DLC**: Biotech (required)
-- **Harmony**: Automatically managed via NuGet
+- **HugsLib** (required)
+- **Harmony**: (required)
 
 ## Installation
 
@@ -55,7 +55,7 @@ Multiple thresholds can be enabled simultaneously; the mod will eject at the ear
 
 ## Architecture
 
-Vat Sentinel follows a modular architecture with clear separation of concerns:
+Vat Sentinel follows a this architecture:
 
 - **VatSentinelWorldComponent**: Persistent game component managing pawn tracking and state
 - **VatTrackingRecord**: Data model representing tracked pawns and their ejection schedules
@@ -105,10 +105,7 @@ See [`docs/LINTING.md`](docs/LINTING.md) for detailed information on code qualit
 
 ### Testing
 
-Testing procedures are documented in [`docs/TESTING.md`](docs/TESTING.md). The testing strategy includes:
-
-- Unit testing for age calculation logic
-- Regression testing across game versions
+Testing procedures are documented in [`docs/TESTING.md`](docs/TESTING.md).
 
 ## Contributing
 
